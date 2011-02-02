@@ -2,9 +2,7 @@ module Tolk
   class Translation < ActiveRecord::Base
     set_table_name "tolk_translations"
 
-    named_scope :containing_text, lambda { |query|
-      { :conditions => ["tolk_translations.text LIKE ?", "%#{query}%"] }
-    }
+    scope :containing_text, lambda {|query| where("tolk_translations.text LIKE ?", "%#{query}%") }
 
     serialize :text
     validates_presence_of :text, :if => proc {|r| r.primary.blank? && !r.explicit_nil }
@@ -112,7 +110,7 @@ module Tolk
         if primary_translation.variables.empty?
           self.errors.add(:text, "The original does not contain variables, so they should not be included.")
         else
-          self.errors.add(:text, "The translation should contain the variables #{primary_translation.to_a.to_sentence}.")
+          self.errors.add(:text, "The translation should contain the variables #{variables.to_a.to_sentence}.")
         end
       end
     end
